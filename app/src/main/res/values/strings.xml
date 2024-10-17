@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Orgs</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_formulario_produto">FormularioProdutoActivity</string>
+</resources>
