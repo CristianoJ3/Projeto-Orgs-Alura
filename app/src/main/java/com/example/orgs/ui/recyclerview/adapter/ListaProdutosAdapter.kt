@@ -2,18 +2,22 @@ package com.example.orgs.ui.recyclerview.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build.VERSION.SDK_INT
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import coil3.load
+import coil.ImageLoader
+import coil.decode.GifDecoder
 import com.example.orgs.R
 import com.example.orgs.databinding.ProdutoItemBinding
+import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
 import java.math.BigDecimal
 import java.text.NumberFormat
+import java.util.Base64.Decoder
 import java.util.Locale
 
 
@@ -24,7 +28,13 @@ class ListaProdutosAdapter(
 
     private val produtos = produtos.toMutableList()
 
-    class ViewHolder(private val binding: ProdutoItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ProdutoItemBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        val imageLoader = ImageLoader.Builder(context)
+            .components {
+                add(GifDecoder.Factory())
+            }
+            .build()
 
         fun vincula(produto: Produto) {
             val nome = binding.produtoItemNome
@@ -34,7 +44,16 @@ class ListaProdutosAdapter(
             val valor = binding.produtoItemValor
             val valorEmMoeda = formataParaMoedaBrasileira(produto.valor)
             valor.text = valorEmMoeda
-            binding.imageView.load(produto.imagem)
+
+            val visibilidade = if(produto.imagem != null){
+                View.VISIBLE
+            }else {
+                View.GONE
+            }
+
+            binding.imageView.visibility = visibilidade
+
+            binding.imageView.tentaCarregarImagem(produto.imagem, imageLoader)
             //binding.imageView.load("https://img.freepik.com/fotos-gratis/uvas-morangos-abacaxi-kiwi-damasco-banana-e-abacaxi-inteiro_23-2147968680.jpg")
         }
 
