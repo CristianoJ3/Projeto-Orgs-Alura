@@ -33,11 +33,28 @@ class FormularioProdutoActivity :
         super.onCreate(savedInstanceState)
         ///binding = ActivityFormularioProdutoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        title = "Cadastrar produto"
+
+        // Criar o ImageLoader
+        val imageLoader = ImageLoader.Builder(this)
+            .components {
+                if (SDK_INT >= 28) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
 
         configuraBotaoSalvar()
 
         binding.activityFormularioProdutoImagem.setOnClickListener() {
-            FormularioImagemDialog(this).mostra()
+            FormularioImagemDialog(this)
+                .mostra(url) {
+                    imagem ->
+                    url = imagem
+                    binding.activityFormularioProdutoImagem.tentaCarregarImagem(url, imageLoader)
+                }
         }
     }
 
