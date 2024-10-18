@@ -16,6 +16,7 @@ import com.example.orgs.databinding.ActivityFormularioProdutoBinding
 import com.example.orgs.databinding.FormularioImagemnBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
+import com.example.orgs.ui.dialog.FormularioImagemDialog
 import java.math.BigDecimal
 
 class FormularioProdutoActivity :
@@ -33,35 +34,10 @@ class FormularioProdutoActivity :
         ///binding = ActivityFormularioProdutoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Criar o ImageLoader
-        val imageLoader = ImageLoader.Builder(this)
-            .components {
-                if (SDK_INT >= 28) {
-                    add(ImageDecoderDecoder.Factory())
-                } else {
-                    add(GifDecoder.Factory())
-                }
-            }
-            .build()
-
         configuraBotaoSalvar()
 
         binding.activityFormularioProdutoImagem.setOnClickListener() {
-            val bindingFormularioImagem = FormularioImagemnBinding.inflate(layoutInflater)
-
-            bindingFormularioImagem.formularioImagemBotaoCarregar.setOnClickListener{
-                val url = bindingFormularioImagem.formularioImagemUrl.text.toString()
-                bindingFormularioImagem.formularioImagemImageview.tentaCarregarImagem(url, imageLoader)
-            }
-
-            AlertDialog.Builder(this)
-                .setView(bindingFormularioImagem.root)
-                .setPositiveButton("Confirmar") { _, _ ->
-                    url = bindingFormularioImagem.formularioImagemUrl.text.toString()
-                    binding.activityFormularioProdutoImagem.tentaCarregarImagem(url, imageLoader)
-                }
-                .setNegativeButton("Cancelar") { _, _ -> }
-                .show()
+            FormularioImagemDialog(this).mostra()
         }
     }
 
