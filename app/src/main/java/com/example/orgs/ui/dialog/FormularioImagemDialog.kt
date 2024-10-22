@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
-import com.example.orgs.databinding.FormularioImagemnBinding
+import com.example.orgs.databinding.FormularioImagemBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 
 class FormularioImagemDialog (private val context: Context){
@@ -27,7 +27,7 @@ class FormularioImagemDialog (private val context: Context){
         urlPadrao: String? = null,
         quandoImagemCarregada: (imagem: String) -> Unit
     ) {
-        FormularioImagemnBinding.inflate(LayoutInflater.from(context)).apply {
+        FormularioImagemBinding.inflate(LayoutInflater.from(context)).apply {
             urlPadrao?.let {
                 formularioImagemImageview.tentaCarregarImagem(it, imageLoader)
                 formularioImagemUrl.setText(it)

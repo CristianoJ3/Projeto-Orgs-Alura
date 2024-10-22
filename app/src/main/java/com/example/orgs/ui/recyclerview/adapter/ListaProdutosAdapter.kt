@@ -3,6 +3,7 @@ package com.example.orgs.ui.recyclerview.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build.VERSION.SDK_INT
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import coil.ImageLoader
 import coil.decode.GifDecoder
 import com.example.orgs.R
 import com.example.orgs.databinding.ProdutoItemBinding
+import com.example.orgs.extensions.formataParaMoedaBrasileira
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
 import java.math.BigDecimal
@@ -23,12 +25,30 @@ import java.util.Locale
 
 class ListaProdutosAdapter(
     private val context: Context,
-    produtos: List<Produto>
+    produtos: List<Produto>,
+    // declaração da função para o listener do adapter
+    var quandoClicaNoItem: (produto: Produto) -> Unit = {}
 ) : RecyclerView.Adapter<ListaProdutosAdapter.ViewHolder>() {
 
     private val produtos = produtos.toMutableList()
 
-    inner class ViewHolder(private val binding: ProdutoItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    // utilização do inner na classe interna para acessar membros da classe superior
+    // nesse caso, a utilização da variável quandoClicaNoItem
+    inner class ViewHolder(private val binding: ProdutoItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        private lateinit var produto: Produto
+
+        init {
+            // implementação do listener do adapter
+            itemView.setOnClickListener {
+                // verificação da existência de valores em property lateinit
+                if (::produto.isInitialized) {
+                    Log.i("Formulario", "Produto clicado no Adapter: $produto")
+                    quandoClicaNoItem(produto)
+                }
+            }
+        }
 
         val imageLoader = ImageLoader.Builder(context)
             .components {
@@ -37,29 +57,24 @@ class ListaProdutosAdapter(
             .build()
 
         fun vincula(produto: Produto) {
+            this.produto = produto
             val nome = binding.produtoItemNome
             nome.text = produto.nome
             val descricao = binding.produtoItemDescricao
             descricao.text = produto.descricao
             val valor = binding.produtoItemValor
-            val valorEmMoeda = formataParaMoedaBrasileira(produto.valor)
+            val valorEmMoeda: String = produto.valor.formataParaMoedaBrasileira()
             valor.text = valorEmMoeda
 
-            val visibilidade = if(produto.imagem != null){
+            val visibilidade = if (produto.imagem != null) {
                 View.VISIBLE
-            }else {
+            } else {
                 View.GONE
             }
 
             binding.imageView.visibility = visibilidade
 
             binding.imageView.tentaCarregarImagem(produto.imagem, imageLoader)
-            //binding.imageView.load("https://img.freepik.com/fotos-gratis/uvas-morangos-abacaxi-kiwi-damasco-banana-e-abacaxi-inteiro_23-2147968680.jpg")
-        }
-
-        private fun formataParaMoedaBrasileira(valor: BigDecimal): String{
-            val formatador: NumberFormat = NumberFormat.getCurrencyInstance(Locale("pt","br"))
-            return formatador.format(valor)
         }
 
     }
@@ -67,8 +82,6 @@ class ListaProdutosAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ProdutoItemBinding.inflate(LayoutInflater.from(context), parent, false)
 
-        ///val inflater = LayoutInflater.from(context)
-        ///val view = inflater.inflate(R.layout.produto_item, parent, false)
         return ViewHolder(binding)
     }
 

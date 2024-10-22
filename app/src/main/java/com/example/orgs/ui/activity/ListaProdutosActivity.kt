@@ -2,14 +2,13 @@ package com.example.orgs.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.example.orgs.R
 import com.example.orgs.dao.ProdutoDao
 import com.example.orgs.databinding.ActivityListaProdutosBinding
+import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos) {
 
@@ -29,16 +28,7 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
 
     override fun onResume() {
         super.onResume()
-
-        /*val nome = findViewById<TextView>(R.id.nome)
-          nome.setText("Cesta de frutas:")
-          val descricao = findViewById<TextView>(R.id.descricao)
-          descricao.setText("Laranja, manga e uva.")
-          val valor = findViewById<TextView>(R.id.valor)
-          valor.setText("19,90")*/
         adapter.atualiza(dao.buscaTodos())
-
-        ///recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     private fun configuraFab() {
@@ -56,5 +46,23 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
     private fun configuraRecyclerView() {
         val recyclerView = binding.activityListaProdutosRecyclerView
         recyclerView.adapter = adapter
+
+        // implementação do listener para abrir a Activity de detalhes do produto
+        // com o produto clicado
+        adapter.quandoClicaNoItem =
+            {
+
+                if (it is Produto) {
+                    Log.i("Formulario", "Produto clicado: $it")
+
+                    val intent = Intent(this, DetalhesProdutoActivity::class.java).apply {
+                        putExtra(CHAVE_PRODUTO, it)
+                    }
+                    startActivity(intent)
+                } else {
+                    Log.e("Formulario", "Item não é do tipo Produto: $it")
+                }
+            }
     }
+
 }
