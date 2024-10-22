@@ -88,6 +88,7 @@ class ListaProdutosAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val produto = produtos[position]
         holder.vincula(produto)
+
     }
 
     override fun getItemCount(): Int = produtos.size
