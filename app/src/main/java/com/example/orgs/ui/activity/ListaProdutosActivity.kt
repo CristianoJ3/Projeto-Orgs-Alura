@@ -10,6 +10,8 @@ import com.example.orgs.databinding.ActivityListaProdutosBinding
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
 
+private const val TAG = "ListaProdutosActivity"
+
 class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos) {
 
     private val adapter = ListaProdutosAdapter(context = this)
@@ -59,6 +61,12 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
                 }
                 startActivity(intent)
             }
+        adapter.quandoClicaEmEditar = {
+            Log.i(TAG, "configuraRecyclerView: Editar $it")
+        }
+        adapter.quandoClicaEmRemover = {
+            Log.i(TAG, "configuraRecyclerView: Remover $it")
+        }
     }
 
 }

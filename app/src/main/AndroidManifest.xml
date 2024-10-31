@@ -39,8 +39,7 @@
 <!--            </intent-filter>-->
         </activity>
 
-        <activity android:name=".ui.activity.DetalhesProdutoActivity"
-                  android:theme="@style/Theme.Orgs.NoActionBar" />
+        <activity android:name=".ui.activity.DetalhesProdutoActivity" />
 
         <meta-data
             android:name="preloaded_fonts"

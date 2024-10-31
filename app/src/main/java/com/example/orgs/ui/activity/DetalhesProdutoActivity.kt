@@ -5,9 +5,12 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
+import com.example.orgs.R
 import com.example.orgs.databinding.ActivityDetalhesProdutoBinding
 import com.example.orgs.extensions.formataParaMoedaBrasileira
 import com.example.orgs.extensions.tentaCarregarImagem
@@ -37,6 +40,25 @@ class DetalhesProdutoActivity : AppCompatActivity() {
             .build()
         tentaCarregarProduto()
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_detalhes_produto, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.menu_detalhes_produto_editar -> {
+
+            }
+
+            R.id.menu_detalhes_produto_remover -> {
+
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun tentaCarregarProduto() {
         // tentativa de buscar o produto se ele existir,
         // caso contrário, finalizar a Activity

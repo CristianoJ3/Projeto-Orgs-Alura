@@ -5,9 +5,11 @@ import android.content.Context
 import android.os.Build.VERSION.SDK_INT
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.ImageLoader
@@ -27,7 +29,9 @@ class ListaProdutosAdapter(
     private val context: Context,
     produtos: List<Produto> = emptyList(),
     // declaração da função para o listener do adapter
-    var quandoClicaNoItem: (produto: Produto) -> Unit = {}
+    var quandoClicaNoItem: (produto: Produto) -> Unit = {},
+    var quandoClicaEmEditar: (produto: Produto) -> Unit = {},
+    var quandoClicaEmRemover: (produto: Produto) -> Unit = {}
 ) : RecyclerView.Adapter<ListaProdutosAdapter.ViewHolder>() {
 
     private val produtos = produtos.toMutableList()
@@ -35,7 +39,7 @@ class ListaProdutosAdapter(
     // utilização do inner na classe interna para acessar membros da classe superior
     // nesse caso, a utilização da variável quandoClicaNoItem
     inner class ViewHolder(private val binding: ProdutoItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+        RecyclerView.ViewHolder(binding.root), PopupMenu.OnMenuItemClickListener {
 
         private lateinit var produto: Produto
 
@@ -47,6 +51,16 @@ class ListaProdutosAdapter(
                     Log.i("Formulario", "Produto clicado no Adapter: $produto")
                     quandoClicaNoItem(produto)
                 }
+            }
+            itemView.setOnLongClickListener {
+                PopupMenu(context, itemView).apply {
+                    menuInflater.inflate(
+                        R.menu.menu_detalhes_produto,
+                        menu
+                    )
+                    setOnMenuItemClickListener(this@ViewHolder)
+                }.show()
+                true
             }
         }
 
@@ -75,6 +89,20 @@ class ListaProdutosAdapter(
             binding.imageView.visibility = visibilidade
 
             binding.imageView.tentaCarregarImagem(produto.imagem, imageLoader)
+        }
+
+        override fun onMenuItemClick(item: MenuItem?): Boolean {
+            item?.let {
+                when (it.itemId) {
+                    R.id.menu_detalhes_produto_editar -> {
+                        quandoClicaEmEditar(produto)
+                    }
+                    R.id.menu_detalhes_produto_remover -> {
+                        quandoClicaEmRemover(produto)
+                    }
+                }
+            }
+            return true
         }
 
     }
