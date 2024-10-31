@@ -15,6 +15,7 @@
 
         <activity
             android:name=".ui.activity.ActivityInicial"
+            android:theme="@style/Theme.Orgs.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,7 +39,8 @@
 <!--            </intent-filter>-->
         </activity>
 
-        <activity android:name=".ui.activity.DetalhesProdutoActivity" />
+        <activity android:name=".ui.activity.DetalhesProdutoActivity"
+                  android:theme="@style/Theme.Orgs.NoActionBar" />
 
         <meta-data
             android:name="preloaded_fonts"

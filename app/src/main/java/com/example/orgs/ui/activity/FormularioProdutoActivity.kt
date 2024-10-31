@@ -3,17 +3,13 @@ package com.example.orgs.ui.activity
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.example.orgs.R
-import com.example.orgs.dao.ProdutoDao
+import com.example.orgs.databas.AppDatabase
 import com.example.orgs.databinding.ActivityFormularioProdutoBinding
-import com.example.orgs.databinding.FormularioImagemBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.dialog.FormularioImagemDialog
@@ -60,12 +56,14 @@ class FormularioProdutoActivity :
 
     private fun configuraBotaoSalvar() {
         val botaoSalvar = binding.activityFormularioProdutoBotaoSalvar
-        val dao = ProdutoDao()
+        val db = AppDatabase.instancia(this)
+        val produtoDao = db.produtoDao()
+//        val dao = ProdutoDao()
         botaoSalvar.setOnClickListener {
             val produtoNovo = criaProduto()
             Log.i("Formulario", "onCreate: $produtoNovo")
-            dao.adiciona(produtoNovo)
-            Log.i("Formulario", "onCreate: ${dao.buscaTodos()}")
+            produtoDao.salva(produtoNovo)
+            Log.i("Formulario", "onCreate: ${produtoDao.buscaTodos()}")
             finish()
         }
     }
