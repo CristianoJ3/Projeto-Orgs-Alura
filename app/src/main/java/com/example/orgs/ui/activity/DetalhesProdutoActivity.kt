@@ -1,5 +1,6 @@
 package com.example.orgs.ui.activity
 
+import android.content.Intent
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.example.orgs.R
+import com.example.orgs.databas.AppDatabase
 import com.example.orgs.databinding.ActivityDetalhesProdutoBinding
 import com.example.orgs.extensions.formataParaMoedaBrasileira
 import com.example.orgs.extensions.tentaCarregarImagem
@@ -20,6 +22,7 @@ import java.math.BigDecimal
 class DetalhesProdutoActivity : AppCompatActivity() {
     private lateinit var imageLoader: ImageLoader
 
+    private lateinit var produto: Produto
     private val binding by lazy {
         ActivityDetalhesProdutoBinding.inflate(layoutInflater)
     }
@@ -47,13 +50,21 @@ class DetalhesProdutoActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
-            R.id.menu_detalhes_produto_editar -> {
+        if (::produto.isInitialized) {
+            val db = AppDatabase.instancia(this)
+            val produtoDao = db.produtoDao()
+            when (item.itemId) {
+                R.id.menu_detalhes_produto_editar -> {
+                    Intent(this, FormularioProdutoActivity::class.java).apply {
+                        putExtra(CHAVE_PRODUTO, produto)
+                        startActivity(this)
+                    }
+                }
 
-            }
-
-            R.id.menu_detalhes_produto_remover -> {
-
+                R.id.menu_detalhes_produto_remover -> {
+                    produtoDao.remove(produto)
+                    finish()
+                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -66,7 +77,7 @@ class DetalhesProdutoActivity : AppCompatActivity() {
             val produtoCarregado = intent.getParcelableExtra(CHAVE_PRODUTO, Produto::class.java)
             produtoCarregado?.let {
                 Log.i("Formulario", "Produto Carregado: $produtoCarregado")
-
+                produto = produtoCarregado
                 preencheCampos(it)
             } ?: finish()
             Log.i("Formulario", "tentaCarregarProduto: $produtoCarregado")
@@ -76,13 +87,14 @@ class DetalhesProdutoActivity : AppCompatActivity() {
             val produtoCarregado = intent.getParcelableExtra<Produto>(CHAVE_PRODUTO)
             produtoCarregado?.let {
                 Log.i("Formulario", "Produto Carregado: $produtoCarregado")
-
+                produto = produtoCarregado
                 preencheCampos(it)
             } ?: finish()
             Log.i("Formulario", "tentaCarregarProduto: $produtoCarregado")
 
         }
     }
+
     private fun preencheCampos(produtoCarregado: Produto) {
         with(binding) {
             detalhesProdutoImagem.tentaCarregarImagem(produtoCarregado.imagem, imageLoader)

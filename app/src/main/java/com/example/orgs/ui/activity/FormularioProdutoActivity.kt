@@ -24,6 +24,7 @@ class FormularioProdutoActivity :
     }
 
     private var url: String? = null
+    private var idProduto = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +53,19 @@ class FormularioProdutoActivity :
                     binding.activityFormularioProdutoImagem.tentaCarregarImagem(url, imageLoader)
                 }
         }
+        intent.getParcelableExtra<Produto>(CHAVE_PRODUTO)?.let { produtoCarregado ->
+            title = "Alterar produto"
+            idProduto = produtoCarregado.id
+            url = produtoCarregado.imagem
+            binding.activityFormularioProdutoImagem
+                .tentaCarregarImagem(url, imageLoader)
+            binding.activityFormularioProdutoNome
+                .setText(produtoCarregado.nome)
+            binding.activityFormularioProdutoDescricao
+                .setText(produtoCarregado.descricao)
+            binding.activityFormularioProdutoValor
+                .setText(produtoCarregado.valor.toPlainString())
+        }
     }
 
     private fun configuraBotaoSalvar() {
@@ -61,9 +75,11 @@ class FormularioProdutoActivity :
 //        val dao = ProdutoDao()
         botaoSalvar.setOnClickListener {
             val produtoNovo = criaProduto()
-            Log.i("Formulario", "onCreate: $produtoNovo")
-            produtoDao.salva(produtoNovo)
-            Log.i("Formulario", "onCreate: ${produtoDao.buscaTodos()}")
+            if(idProduto > 0){
+                produtoDao.atualiza(produtoNovo)
+            } else {
+                produtoDao.salva(produtoNovo)
+            }
             finish()
         }
     }
@@ -82,6 +98,7 @@ class FormularioProdutoActivity :
         }
 
         return Produto(
+            id = idProduto,
             nome = nome,
             descricao = descricao,
             valor = valor,
