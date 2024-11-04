@@ -2,13 +2,13 @@ package com.example.orgs.ui.activity
 
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import com.example.orgs.R
 import com.example.orgs.databas.AppDatabase
+import com.example.orgs.database.dao.ProdutoDao
 import com.example.orgs.databinding.ActivityFormularioProdutoBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
@@ -24,7 +24,11 @@ class FormularioProdutoActivity :
     }
 
     private var url: String? = null
-    private var idProduto = 0L
+    private var produtoId = 0L
+    private val produtoDao: ProdutoDao by lazy {
+        val db = AppDatabase.instancia(this)
+        db.produtoDao()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,15 +37,7 @@ class FormularioProdutoActivity :
         title = "Cadastrar produto"
 
         // Criar o ImageLoader
-        val imageLoader = ImageLoader.Builder(this)
-            .components {
-                if (SDK_INT >= 28) {
-                    add(ImageDecoderDecoder.Factory())
-                } else {
-                    add(GifDecoder.Factory())
-                }
-            }
-            .build()
+        val imageLoader = chamaImageLoader()
 
         configuraBotaoSalvar()
 
@@ -53,33 +49,69 @@ class FormularioProdutoActivity :
                     binding.activityFormularioProdutoImagem.tentaCarregarImagem(url, imageLoader)
                 }
         }
-        intent.getParcelableExtra<Produto>(CHAVE_PRODUTO)?.let { produtoCarregado ->
+        tentaCarregarProduto()
+    }
+
+    private fun tentaCarregarProduto() {
+        produtoId = intent.getLongExtra(CHAVE_PRODUTO_ID, 0L)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tentaBuscarProduto()
+    }
+
+    private fun FormularioProdutoActivity.tentaBuscarProduto() {
+
+        // Criar o ImageLoader
+        val imageLoader = chamaImageLoader()
+
+        produtoDao.buscaPorId(produtoId)?.let {
             title = "Alterar produto"
-            idProduto = produtoCarregado.id
-            url = produtoCarregado.imagem
-            binding.activityFormularioProdutoImagem
-                .tentaCarregarImagem(url, imageLoader)
-            binding.activityFormularioProdutoNome
-                .setText(produtoCarregado.nome)
-            binding.activityFormularioProdutoDescricao
-                .setText(produtoCarregado.descricao)
-            binding.activityFormularioProdutoValor
-                .setText(produtoCarregado.valor.toPlainString())
+            preencheCampos(it, imageLoader)
         }
+    }
+
+    private fun chamaImageLoader(): ImageLoader {
+        val imageLoader = ImageLoader.Builder(this)
+            .components {
+                if (SDK_INT >= 28) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
+        return imageLoader
+    }
+
+    private fun preencheCampos(
+        produto: Produto,
+        imageLoader: ImageLoader
+    ) {
+        url = produto.imagem
+        binding.activityFormularioProdutoImagem
+            .tentaCarregarImagem(url, imageLoader)
+        binding.activityFormularioProdutoNome
+            .setText(produto.nome)
+        binding.activityFormularioProdutoDescricao
+            .setText(produto.descricao)
+        binding.activityFormularioProdutoValor
+            .setText(produto.valor.toPlainString())
     }
 
     private fun configuraBotaoSalvar() {
         val botaoSalvar = binding.activityFormularioProdutoBotaoSalvar
-        val db = AppDatabase.instancia(this)
-        val produtoDao = db.produtoDao()
+
 //        val dao = ProdutoDao()
         botaoSalvar.setOnClickListener {
             val produtoNovo = criaProduto()
-            if(idProduto > 0){
-                produtoDao.atualiza(produtoNovo)
-            } else {
-                produtoDao.salva(produtoNovo)
-            }
+//            if(produtoId > 0){
+//                produtoDao.atualiza(produtoNovo)
+//            } else {
+//                produtoDao.salva(produtoNovo)
+//            }
+            produtoDao.salva(produtoNovo)
             finish()
         }
     }
@@ -98,7 +130,7 @@ class FormularioProdutoActivity :
         }
 
         return Produto(
-            id = idProduto,
+            id = produtoId,
             nome = nome,
             descricao = descricao,
             valor = valor,
