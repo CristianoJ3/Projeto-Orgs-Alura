@@ -5,12 +5,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatActivity
 import com.example.orgs.R
 import com.example.orgs.databas.AppDatabase
 import com.example.orgs.databinding.ActivityListaProdutosBinding
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "ListaProdutosActivity"
 
@@ -38,7 +44,13 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         super.onResume()
         val db = AppDatabase.instancia(this)
         val produtoDao = db.produtoDao()
-        adapter.atualiza(produtoDao.buscaTodos())
+        val scope = MainScope()
+        scope.launch {
+            val produtos = withContext(IO){
+                produtoDao.buscaTodos()
+            }
+            adapter.atualiza(produtos)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

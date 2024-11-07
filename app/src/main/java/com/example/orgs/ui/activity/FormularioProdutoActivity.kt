@@ -13,6 +13,11 @@ import com.example.orgs.databinding.ActivityFormularioProdutoBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.dialog.FormularioImagemDialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
 class FormularioProdutoActivity :
@@ -29,6 +34,7 @@ class FormularioProdutoActivity :
         val db = AppDatabase.instancia(this)
         db.produtoDao()
     }
+    private val scope = CoroutineScope(IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +49,7 @@ class FormularioProdutoActivity :
 
         binding.activityFormularioProdutoImagem.setOnClickListener() {
             FormularioImagemDialog(this)
-                .mostra(url) {
-                    imagem ->
+                .mostra(url) { imagem ->
                     url = imagem
                     binding.activityFormularioProdutoImagem.tentaCarregarImagem(url, imageLoader)
                 }
@@ -62,14 +67,18 @@ class FormularioProdutoActivity :
     }
 
     private fun FormularioProdutoActivity.tentaBuscarProduto() {
+        scope.launch {
+            // Criar o ImageLoader
+            val imageLoader = chamaImageLoader()
 
-        // Criar o ImageLoader
-        val imageLoader = chamaImageLoader()
-
-        produtoDao.buscaPorId(produtoId)?.let {
-            title = "Alterar produto"
-            preencheCampos(it, imageLoader)
+            produtoDao.buscaPorId(produtoId)?.let {
+                withContext(Dispatchers.Main) {
+                    title = "Alterar produto"
+                    preencheCampos(it, imageLoader)
+                }
+            }
         }
+
     }
 
     private fun chamaImageLoader(): ImageLoader {
@@ -111,8 +120,10 @@ class FormularioProdutoActivity :
 //            } else {
 //                produtoDao.salva(produtoNovo)
 //            }
-            produtoDao.salva(produtoNovo)
-            finish()
+            scope.launch {
+                produtoDao.salva(produtoNovo)
+                finish()
+            }
         }
     }
 
