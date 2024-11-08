@@ -17,6 +17,8 @@ import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,15 +42,11 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         configuraRecyclerView()
         configuraFab()
         setContentView(binding.root)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val db = AppDatabase.instancia(this)
 
         lifecycleScope.launch {
-            val produtos = produtoDao.buscaTodos()
-            adapter.atualiza(produtos)
+            produtoDao.buscaTodos().collect { produtos ->
+                adapter.atualiza(produtos)
+            }
         }
     }
 
@@ -58,7 +56,7 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         lifecycleScope.launch {
-            val produtosOrdenado: List<Produto>? = when (item.itemId) {
+            val produtosOrdenado: Flow<List<Produto>>? = when (item.itemId) {
                 R.id.menu_lista_produtos_ordenar_nome_asc ->
                     produtoDao.buscaTodosOrdenadorPorNomeAsc()
                 R.id.menu_lista_produtos_ordenar_nome_desc ->
@@ -75,7 +73,8 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
                     produtoDao.buscaTodos()
                 else -> null
             }
-            produtosOrdenado?.let {
+
+            produtosOrdenado?.collect { it ->
                 adapter.atualiza(it)
             }
         }

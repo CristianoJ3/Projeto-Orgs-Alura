@@ -5,14 +5,14 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.example.orgs.model.Produto
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProdutoDao {
 
     @Query("SELECT * FROM produto")
-    fun buscaTodos() : List<Produto>
+    fun buscaTodos() : Flow<List<Produto>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun salva(vararg produto: Produto)
@@ -24,20 +24,20 @@ interface ProdutoDao {
     fun buscaPorId(id: Long) : Produto?
 
     @Query("SELECT * FROM Produto ORDER BY nome ASC")
-    fun buscaTodosOrdenadorPorNomeAsc(): List<Produto>
+    fun buscaTodosOrdenadorPorNomeAsc(): Flow<List<Produto>>
 
     @Query("SELECT * FROM Produto ORDER BY nome DESC")
-    fun buscaTodosOrdenadorPorNomeDesc(): List<Produto>
+    fun buscaTodosOrdenadorPorNomeDesc(): Flow<List<Produto>>
 
     @Query("SELECT * FROM Produto ORDER BY descricao ASC")
-    fun buscaTodosOrdenadorPorDescricaoAsc(): List<Produto>
+    fun buscaTodosOrdenadorPorDescricaoAsc(): Flow<List<Produto>>
 
     @Query("SELECT * FROM Produto ORDER BY descricao DESC")
-    fun buscaTodosOrdenadorPorDescricaoDesc(): List<Produto>
+    fun buscaTodosOrdenadorPorDescricaoDesc(): Flow<List<Produto>>
 
     @Query("SELECT * FROM Produto ORDER BY valor ASC")
-    fun buscaTodosOrdenadorPorValorAsc(): List<Produto>
+    fun buscaTodosOrdenadorPorValorAsc(): Flow<List<Produto>>
 
     @Query("SELECT * FROM Produto ORDER BY valor DESC")
-    fun buscaTodosOrdenadorPorValorDesc(): List<Produto>
+    fun buscaTodosOrdenadorPorValorDesc(): Flow<List<Produto>>
 }
