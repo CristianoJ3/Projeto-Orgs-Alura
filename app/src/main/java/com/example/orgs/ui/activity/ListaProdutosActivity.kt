@@ -7,8 +7,10 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.orgs.R
 import com.example.orgs.databas.AppDatabase
+import com.example.orgs.database.dao.ProdutoDao
 import com.example.orgs.databinding.ActivityListaProdutosBinding
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
@@ -43,12 +45,9 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
     override fun onResume() {
         super.onResume()
         val db = AppDatabase.instancia(this)
-        val produtoDao = db.produtoDao()
-        val scope = MainScope()
-        scope.launch {
-            val produtos = withContext(IO){
-                produtoDao.buscaTodos()
-            }
+
+        lifecycleScope.launch {
+            val produtos = produtoDao.buscaTodos()
             adapter.atualiza(produtos)
         }
     }
@@ -58,25 +57,27 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val produtosOrdenado: List<Produto>? = when (item.itemId) {
-            R.id.menu_lista_produtos_ordenar_nome_asc ->
-                produtoDao.buscaTodosOrdenadorPorNomeAsc()
-            R.id.menu_lista_produtos_ordenar_nome_desc ->
-                produtoDao.buscaTodosOrdenadorPorNomeDesc()
-            R.id.menu_lista_produtos_ordenar_descricao_asc ->
-                produtoDao.buscaTodosOrdenadorPorDescricaoAsc()
-            R.id.menu_lista_produtos_ordenar_descricao_desc ->
-                produtoDao.buscaTodosOrdenadorPorDescricaoDesc()
-            R.id.menu_lista_produtos_ordenar_valor_asc ->
-                produtoDao.buscaTodosOrdenadorPorValorAsc()
-            R.id.menu_lista_produtos_ordenar_valor_desc ->
-                produtoDao.buscaTodosOrdenadorPorValorDesc()
-            R.id.menu_lista_produtos_ordenar_sem_ordem ->
-                produtoDao.buscaTodos()
-            else -> null
-        }
-        produtosOrdenado?.let {
-            adapter.atualiza(it)
+        lifecycleScope.launch {
+            val produtosOrdenado: List<Produto>? = when (item.itemId) {
+                R.id.menu_lista_produtos_ordenar_nome_asc ->
+                    produtoDao.buscaTodosOrdenadorPorNomeAsc()
+                R.id.menu_lista_produtos_ordenar_nome_desc ->
+                    produtoDao.buscaTodosOrdenadorPorNomeDesc()
+                R.id.menu_lista_produtos_ordenar_descricao_asc ->
+                    produtoDao.buscaTodosOrdenadorPorDescricaoAsc()
+                R.id.menu_lista_produtos_ordenar_descricao_desc ->
+                    produtoDao.buscaTodosOrdenadorPorDescricaoDesc()
+                R.id.menu_lista_produtos_ordenar_valor_asc ->
+                    produtoDao.buscaTodosOrdenadorPorValorAsc()
+                R.id.menu_lista_produtos_ordenar_valor_desc ->
+                    produtoDao.buscaTodosOrdenadorPorValorDesc()
+                R.id.menu_lista_produtos_ordenar_sem_ordem ->
+                    produtoDao.buscaTodos()
+                else -> null
+            }
+            produtosOrdenado?.let {
+                adapter.atualiza(it)
+            }
         }
         return super.onOptionsItemSelected(item)
     }

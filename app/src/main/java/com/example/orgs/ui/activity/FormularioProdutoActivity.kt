@@ -3,6 +3,7 @@ package com.example.orgs.ui.activity
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
@@ -13,11 +14,7 @@ import com.example.orgs.databinding.ActivityFormularioProdutoBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.dialog.FormularioImagemDialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 
 class FormularioProdutoActivity :
@@ -34,7 +31,6 @@ class FormularioProdutoActivity :
         val db = AppDatabase.instancia(this)
         db.produtoDao()
     }
-    private val scope = CoroutineScope(IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,15 +63,13 @@ class FormularioProdutoActivity :
     }
 
     private fun FormularioProdutoActivity.tentaBuscarProduto() {
-        scope.launch {
+        lifecycleScope.launch {
             // Criar o ImageLoader
             val imageLoader = chamaImageLoader()
 
             produtoDao.buscaPorId(produtoId)?.let {
-                withContext(Dispatchers.Main) {
-                    title = "Alterar produto"
-                    preencheCampos(it, imageLoader)
-                }
+                title = "Alterar produto"
+                preencheCampos(it, imageLoader)
             }
         }
 
@@ -120,7 +114,7 @@ class FormularioProdutoActivity :
 //            } else {
 //                produtoDao.salva(produtoNovo)
 //            }
-            scope.launch {
+            lifecycleScope.launch {
                 produtoDao.salva(produtoNovo)
                 finish()
             }
