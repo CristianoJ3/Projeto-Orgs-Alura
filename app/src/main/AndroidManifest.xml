@@ -24,6 +24,15 @@
         </activity>
 
         <activity
+            android:name=".ui.activity.FormularioCadastroUsuarioActivity"
+            android:label="Cadastrar usuário" />
+
+        <activity
+            android:name=".ui.activity.LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Orgs.NoActionBar"/>
+
+        <activity
             android:name=".ui.activity.FormularioProdutoActivity"
             android:exported="true"
             android:launchMode="singleTask">

@@ -19,7 +19,7 @@ class ActivityInicial : AppCompatActivity() {
         // Configurando o clique no botão "Vamos lá"
         binding.activityInicialButton.setOnClickListener {
             // Ir para a próxima Activity (ListaProdutosActivity)
-            val intent = Intent(this, ListaProdutosActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
 
             // Finalizar a Activity Inicial para que o usuário não volte para ela
