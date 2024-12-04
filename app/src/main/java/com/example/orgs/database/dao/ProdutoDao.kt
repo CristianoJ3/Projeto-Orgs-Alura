@@ -21,7 +21,7 @@ interface ProdutoDao {
     fun remove(produto: Produto)
 
     @Query("SELECT * FROM Produto WHERE id = :id")
-    fun buscaPorId(id: Long) : Produto?
+    fun buscaPorId(id: Long) : Flow<Produto?>
 
     @Query("SELECT * FROM Produto ORDER BY nome ASC")
     fun buscaTodosOrdenadorPorNomeAsc(): Flow<List<Produto>>

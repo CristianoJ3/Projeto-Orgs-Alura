@@ -37,6 +37,10 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         db.produtoDao()
     }
 
+    private val usuarioDao by lazy{
+        AppDatabase.instancia(this).usuarioDao()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         configuraRecyclerView()
@@ -44,8 +48,15 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         setContentView(binding.root)
 
         lifecycleScope.launch {
-            produtoDao.buscaTodos().collect { produtos ->
-                adapter.atualiza(produtos)
+            launch {
+                produtoDao.buscaTodos().collect { produtos ->
+                    adapter.atualiza(produtos)
+                }
+            }
+            intent.getStringExtra("CHAVE_USUARIO_ID")?.let { usuarioId ->
+                usuarioDao.buscaPorId(usuarioId).collect {
+                    Log.i("ListaProdutos", "onCreate: $it")
+                }
             }
         }
     }

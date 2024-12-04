@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.orgs.databas.AppDatabase
 import com.example.orgs.databinding.ActivityFormularioCadastroUsuarioBinding
-import com.example.orgs.ui.theme.Usuario
+import com.example.orgs.model.Usuario
 import kotlinx.coroutines.launch
 
 class FormularioCadastroUsuarioActivity : AppCompatActivity() {
@@ -38,8 +38,7 @@ class FormularioCadastroUsuarioActivity : AppCompatActivity() {
                         this@FormularioCadastroUsuarioActivity,
                         "Falha ao cadastrar usuário!",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 }
             }
             finish()

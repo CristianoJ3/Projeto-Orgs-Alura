@@ -67,10 +67,13 @@ class FormularioProdutoActivity :
             // Criar o ImageLoader
             val imageLoader = chamaImageLoader()
 
-            produtoDao.buscaPorId(produtoId)?.let {
-                title = "Alterar produto"
-                preencheCampos(it, imageLoader)
+            produtoDao.buscaPorId(produtoId).collect {
+                it?.let { produtoEncontrado ->
+                    title = "Alterar produto"
+                    preencheCampos(produtoEncontrado, imageLoader)
+                }
             }
+
         }
 
     }
