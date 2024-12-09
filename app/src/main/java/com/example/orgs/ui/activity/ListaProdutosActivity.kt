@@ -6,10 +6,12 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.orgs.R
 import com.example.orgs.databas.AppDatabase
 import com.example.orgs.databinding.ActivityListaProdutosBinding
+import com.example.orgs.extensions.vaiPara
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
 import dataStore
@@ -50,22 +52,42 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
                 }
             }
 
-            dataStore.data.collect { preferences ->
-                preferences[usuarioLogadoPreference]?.let { usuarioId ->
-                    usuarioDao.buscaPorId(usuarioId).collect {
-                        Log.i("ListaProdutos", "onCreate: $it")
-                    }
+            launch {
+                dataStore.data.collect { preferences ->
+                    preferences[usuarioLogadoPreference]?.let { usuarioId ->
+                        launch {
+                            usuarioDao.buscaPorId(usuarioId).collect {
+                                Log.i("ListaProdutos", "onCreate: $it")
+                            }
+                        }
+                    } ?: vaiParaLogin()
                 }
-
             }
         }
     }
 
+    private fun vaiParaLogin() {
+        vaiPara(LoginActivity::class.java)
+        finish()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_lista_produto, menu)
         menuInflater.inflate(R.menu.menu_lista_ordenacao, menu)
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        lifecycleScope.launch {
+            when (item.itemId){
+                R.id.menu_lista_produtos_sair_do_app -> {
+                    dataStore.edit { preferences ->
+                        preferences.remove(usuarioLogadoPreference)
+                    }
+                }
+            }
+        }
+
         lifecycleScope.launch {
             val produtosOrdenado: Flow<List<Produto>>? = when (item.itemId) {
                 R.id.menu_lista_produtos_ordenar_nome_asc ->
