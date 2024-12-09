@@ -5,22 +5,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.orgs.R
 import com.example.orgs.databas.AppDatabase
-import com.example.orgs.database.dao.ProdutoDao
 import com.example.orgs.databinding.ActivityListaProdutosBinding
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.MainScope
+import dataStore
+
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import usuarioLogadoPreference
 
 private const val TAG = "ListaProdutosActivity"
 
@@ -53,10 +49,14 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
                     adapter.atualiza(produtos)
                 }
             }
-            intent.getStringExtra("CHAVE_USUARIO_ID")?.let { usuarioId ->
-                usuarioDao.buscaPorId(usuarioId).collect {
-                    Log.i("ListaProdutos", "onCreate: $it")
+
+            dataStore.data.collect { preferences ->
+                preferences[usuarioLogadoPreference]?.let { usuarioId ->
+                    usuarioDao.buscaPorId(usuarioId).collect {
+                        Log.i("ListaProdutos", "onCreate: $it")
+                    }
                 }
+
             }
         }
     }

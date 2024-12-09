@@ -3,11 +3,14 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.orgs.databas.AppDatabase
 import com.example.orgs.extensions.vaiPara
 import com.example.orgs.databinding.ActivityLoginBinding
+import dataStore
 import kotlinx.coroutines.launch
+import usuarioLogadoPreference
 
 class LoginActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -31,9 +34,10 @@ class LoginActivity : AppCompatActivity() {
             Log.i("LoginActivity", "onCreate: $usuario - $senha")
             lifecycleScope.launch {
                 usuarioDao.autentica(usuario, senha)?.let { usuario ->
-                    vaiPara(ListaProdutosActivity::class.java){
-                        putExtra("CHAVE_USUARIO_ID", usuario.id)
+                    dataStore.edit { preferences ->
+                        preferences[usuarioLogadoPreference] = usuario.id
                     }
+                    vaiPara(ListaProdutosActivity::class.java)
                 } ?:
                 Toast.makeText(this@LoginActivity, "Falha na autenticação!", Toast.LENGTH_SHORT)
                     .show()
