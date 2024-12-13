@@ -2,12 +2,12 @@ package com.example.orgs.ui.activity
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.orgs.databas.AppDatabase
 import com.example.orgs.databinding.ActivityFormularioCadastroUsuarioBinding
 import com.example.orgs.extensions.toHash
+import com.example.orgs.extensions.toast
 import com.example.orgs.model.Usuario
 import kotlinx.coroutines.launch
 
@@ -28,21 +28,20 @@ class FormularioCadastroUsuarioActivity : AppCompatActivity() {
     private fun configuraBotaoCadastrar() {
         binding.activityFormularioCadastroBotaoCadastrar.setOnClickListener {
             val novoUsuario = criaUsuario()
-            Log.i("CadastroUsuario", "onCreate: $novoUsuario")
-            lifecycleScope.launch {
-                try {
-                    dao.salva(novoUsuario)
-                    finish()
-                } catch (e: Exception) {
-                    Log.e("CadastroUsuario", "onCreate: $novoUsuario")
-                    Toast.makeText(
-                        this@FormularioCadastroUsuarioActivity,
-                        "Falha ao cadastrar usuário!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+            cadastra(novoUsuario)
+        }
+    }
+
+    private fun cadastra(usuario: Usuario) {
+        lifecycleScope.launch {
+            try {
+                dao.salva(usuario)
+                Log.i("DadosUsuario", "Usuario: $usuario")
+                finish()
+            } catch (e: Exception) {
+                Log.e("CadastroUsuario", "onCreate: $usuario")
+                toast("Falha ao cadastrar usuário!")
             }
-            finish()
         }
     }
 
@@ -50,6 +49,7 @@ class FormularioCadastroUsuarioActivity : AppCompatActivity() {
         val usuario = binding.activityFormularioCadastroUsuario.text.toString()
         val nome = binding.activityFormularioCadastroNome.text.toString()
         val senha = binding.activityFormularioCadastroSenha.text.toString().toHash()
+        Log.i("DadosUsuario", "Usuario: $usuario, Nome: $nome, Senha: $senha")
         return Usuario(usuario, nome, senha)
     }
 }

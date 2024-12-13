@@ -15,10 +15,12 @@ import com.example.orgs.extensions.vaiPara
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.recyclerview.adapter.ListaProdutosAdapter
 import dataStore
+import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import usuarioLogadoPreference
+import usuarioLogadoPreferences
 
 private const val TAG = "ListaProdutosActivity"
 
@@ -35,33 +37,45 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         db.produtoDao()
     }
 
-    private val usuarioDao by lazy{
+    private val usuarioDao by lazy {
         AppDatabase.instancia(this).usuarioDao()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(binding.root)
         configuraRecyclerView()
         configuraFab()
-        setContentView(binding.root)
 
         lifecycleScope.launch {
             launch {
-                produtoDao.buscaTodos().collect { produtos ->
-                    adapter.atualiza(produtos)
+                verificaUsuarioLogado()
+            }
+        }
+    }
+
+    private suspend fun verificaUsuarioLogado() {
+        dataStore.data.collect { preferences ->
+            preferences[usuarioLogadoPreferences]?.let { usuarioId ->
+                buscaUsuario(usuarioId)
+            } ?: vaiParaLogin()
+        }
+    }
+
+    private fun buscaUsuario(usuarioId: String) {
+        lifecycleScope.launch {
+            usuarioDao.buscaPorId(usuarioId).firstOrNull()?.let {
+                launch {
+                    buscaProdutosUsuario()
                 }
             }
+        }
+    }
 
-            launch {
-                dataStore.data.collect { preferences ->
-                    preferences[usuarioLogadoPreference]?.let { usuarioId ->
-                        launch {
-                            usuarioDao.buscaPorId(usuarioId).collect {
-                                Log.i("ListaProdutos", "onCreate: $it")
-                            }
-                        }
-                    } ?: vaiParaLogin()
-                }
+    private fun CoroutineScope.buscaProdutosUsuario() {
+        launch {
+            produtoDao.buscaTodos().collect { produtos ->
+                adapter.atualiza(produtos)
             }
         }
     }
@@ -76,14 +90,12 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
         menuInflater.inflate(R.menu.menu_lista_ordenacao, menu)
         return super.onCreateOptionsMenu(menu)
     }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        lifecycleScope.launch {
-            when (item.itemId){
-                R.id.menu_lista_produtos_sair_do_app -> {
-                    dataStore.edit { preferences ->
-                        preferences.remove(usuarioLogadoPreference)
-                    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_lista_produtos_sair_do_app -> {
+                lifecycleScope.launch {
+                    deslogaUsuario()
                 }
             }
         }
@@ -92,18 +104,25 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
             val produtosOrdenado: Flow<List<Produto>>? = when (item.itemId) {
                 R.id.menu_lista_produtos_ordenar_nome_asc ->
                     produtoDao.buscaTodosOrdenadorPorNomeAsc()
+
                 R.id.menu_lista_produtos_ordenar_nome_desc ->
                     produtoDao.buscaTodosOrdenadorPorNomeDesc()
+
                 R.id.menu_lista_produtos_ordenar_descricao_asc ->
                     produtoDao.buscaTodosOrdenadorPorDescricaoAsc()
+
                 R.id.menu_lista_produtos_ordenar_descricao_desc ->
                     produtoDao.buscaTodosOrdenadorPorDescricaoDesc()
+
                 R.id.menu_lista_produtos_ordenar_valor_asc ->
                     produtoDao.buscaTodosOrdenadorPorValorAsc()
+
                 R.id.menu_lista_produtos_ordenar_valor_desc ->
                     produtoDao.buscaTodosOrdenadorPorValorDesc()
+
                 R.id.menu_lista_produtos_ordenar_sem_ordem ->
                     produtoDao.buscaTodos()
+
                 else -> null
             }
 
@@ -112,6 +131,12 @@ class ListaProdutosActivity : AppCompatActivity(R.layout.activity_lista_produtos
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private suspend fun deslogaUsuario() {
+        dataStore.edit { preferences ->
+            preferences.remove(usuarioLogadoPreferences)
+        }
     }
 
     private fun configuraFab() {

@@ -6,4 +6,4 @@ import androidx.datastore.preferences.preferencesDataStore
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "sessao_usuario")
 
-val usuarioLogadoPreference = stringPreferencesKey("usuarioLogado")
+val usuarioLogadoPreferences = stringPreferencesKey("usuarioLogado")
