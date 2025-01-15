@@ -17,8 +17,7 @@ import com.example.orgs.ui.dialog.FormularioImagemDialog
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
-class FormularioProdutoActivity :
-    AppCompatActivity(R.layout.activity_formulario_produto) {
+class FormularioProdutoActivity : UsuarioBaseActivity() {
 
     ///private lateinit var binding: ActivityFormularioProdutoBinding
     private val binding by lazy {
