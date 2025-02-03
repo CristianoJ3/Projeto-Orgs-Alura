@@ -38,6 +38,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.activity.PerfilUsuarioActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Orgs">
+        </activity>
+
         <activity android:name=".ui.activity.DetalhesProdutoActivity" />
 
         <meta-data

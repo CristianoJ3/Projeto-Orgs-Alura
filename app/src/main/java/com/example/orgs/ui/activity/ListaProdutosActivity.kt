@@ -59,6 +59,7 @@ class ListaProdutosActivity : UsuarioBaseActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_perfil_usuario, menu)
         menuInflater.inflate(R.menu.menu_lista_produto, menu)
         menuInflater.inflate(R.menu.menu_lista_ordenacao, menu)
         return super.onCreateOptionsMenu(menu)
@@ -66,6 +67,14 @@ class ListaProdutosActivity : UsuarioBaseActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.menu_perfil_usuario -> {
+                Log.i("AcessoPerfilUsuario","Clicando para abrir a activity de usuário")
+                val intent = Intent(this, PerfilUsuarioActivity::class.java)
+                startActivity(intent)
+                /*Intent(this, PerfilUsuarioActivity::class.java).apply {
+                    startActivity(this)
+                }*/
+            }
             R.id.menu_lista_produtos_sair_do_app -> {
                 lifecycleScope.launch {
                     deslogaUsuario()
