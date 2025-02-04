@@ -42,16 +42,16 @@ class ListaProdutosActivity : UsuarioBaseActivity() {
             launch {
                 usuario
                     .filterNotNull()
-                    .collect {
-                        buscaProdutosUsuario()
+                    .collect { usuario ->
+                        buscaProdutosUsuario(usuario.id)
                     }
             }
         }
     }
 
-    private fun CoroutineScope.buscaProdutosUsuario() {
+    private fun CoroutineScope.buscaProdutosUsuario(usuarioId: String) {
         launch {
-            produtoDao.buscaTodos().collect { produtos ->
+            produtoDao.buscaTodosDoUsuario(usuarioId).collect { produtos ->
                 adapter.atualiza(produtos)
             }
         }

@@ -14,6 +14,8 @@ import com.example.orgs.databinding.ActivityFormularioProdutoBinding
 import com.example.orgs.extensions.tentaCarregarImagem
 import com.example.orgs.model.Produto
 import com.example.orgs.ui.dialog.FormularioImagemDialog
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -110,20 +112,22 @@ class FormularioProdutoActivity : UsuarioBaseActivity() {
 
 //        val dao = ProdutoDao()
         botaoSalvar.setOnClickListener {
-            val produtoNovo = criaProduto()
 //            if(produtoId > 0){
 //                produtoDao.atualiza(produtoNovo)
 //            } else {
 //                produtoDao.salva(produtoNovo)
 //            }
             lifecycleScope.launch {
-                produtoDao.salva(produtoNovo)
-                finish()
+                usuario.value?.let { usuario ->
+                        val produtoNovo = criaProduto(usuario.id)
+                        produtoDao.salva(produtoNovo)
+                        finish()
+                    }
             }
         }
     }
 
-    private fun criaProduto(): Produto {
+    private fun criaProduto(usuarioId: String): Produto {
         val campoNome = binding.activityFormularioProdutoNome
         val nome = campoNome.text.toString()
         val campoDescricao = binding.activityFormularioProdutoDescricao
@@ -141,7 +145,8 @@ class FormularioProdutoActivity : UsuarioBaseActivity() {
             nome = nome,
             descricao = descricao,
             valor = valor,
-            imagem = url
+            imagem = url,
+            usuarioId = usuarioId
         )
     }
 
